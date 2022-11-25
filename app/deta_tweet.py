@@ -24,25 +24,32 @@ def get_thread_key(thread):
     return key
 
 
-def get_new_user(mention):
-    user = mention.get("user")
-    if not user:
-        return
+def get_user_twitter_handle(user_info):
+    return user_info.get("screen_name")
 
+
+def get_new_user_payload(user_info):
+    if not user_info:
+        return None, None
+
+    screen_name = get_user_twitter_handle(user_info)
     new_user = {
-        "twitter_handle": user["screen_name"],
-        "name": user["name"],
-        "description": user["description"],
+        "twitter_handle": screen_name,
+        "name": user_info.get("name"),
+        "description": user_info.get("description"),
         "threads": [],
-        "location": user["location"],
-        "profile_image_url": user["profile_image_url_https"].replace(
-            "_normal", "_400x400"
-        ),
-        "profile_banner_url": user["profile_banner_url"],
-        "profile_use_background_image": user["profile_use_background_image"],
+        "location": user_info.get("location"),
+        "profile_image_url": user_info.get("profile_image_url_https"),
+        "profile_banner_url": user_info.get("profile_banner_url"),
+        "profile_use_background_image": user_info.get("profile_use_background_image"),
     }
-    key = new_user["twitter_handle"]
-    return key, new_user
+
+    if new_user.get("profile_image_url"):
+        new_user["profile_image_url"] = new_user["profile_image_url"].replace(
+            "_normal", "_400x400"
+        )
+
+    return screen_name, new_user
 
 
 def extract_thread_info(thread_post):
@@ -62,11 +69,11 @@ def extract_thread_info(thread_post):
     return thread_meta
 
 
-def save_thread_to_detabase(key, thread):
-    if not (thread and key):
+def save_thread_to_detabase(key, thread, thread_info):
+    if not (thread and key and thread_info):
         return
 
-    raw_thread = {"data": thread}
+    raw_thread = {"data": thread, "thread_info": thread_info}
     DETA_BASE_THREAD.put(raw_thread, key=key)
     return key
 
@@ -81,7 +88,13 @@ def create_new_user(key, new_user):
     if not new_user:
         return
 
+    # check if user already exist:
+    user = get_user(key)
+    if user:
+        return user.get("twitter_handle")
+
     DETA_BASE_TWITTER_USER.put(new_user, key=key)
+    return key
 
 
 def get_user(key):
@@ -91,6 +104,6 @@ def get_user(key):
     return DETA_BASE_TWITTER_USER.get(key)
 
 
-def update_user_thread_list(key, thread_id):
-    update = {"threads": DETA_BASE_TWITTER_USER.util.append(thread_id)}
+def update_user_thread_list(key, thread_info):
+    update = {"threads": DETA_BASE_TWITTER_USER.util.append(thread_info)}
     DETA_BASE_TWITTER_USER.update(update, key)

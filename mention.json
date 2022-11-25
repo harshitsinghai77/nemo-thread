@@ -1,0 +1,104 @@
+[
+  {
+    "created_at": "Fri Nov 25 21:16:57 +0000 2022",
+    "id": 1596251620752257024,
+    "id_str": "1596251620752257024",
+    "full_text": "@SystemSunday @harshit_778 \n\nTest stuff",
+    "truncated": false,
+    "display_text_range": [14, 39],
+    "entities": {
+      "hashtags": [],
+      "symbols": [],
+      "user_mentions": [
+        {
+          "screen_name": "SystemSunday",
+          "name": "Ben Meer",
+          "id": 1375783074374381582,
+          "id_str": "1375783074374381582",
+          "indices": [0, 13]
+        },
+        {
+          "screen_name": "harshit_778",
+          "name": "Harshit Singhai",
+          "id": 3683709463,
+          "id_str": "3683709463",
+          "indices": [14, 26]
+        }
+      ],
+      "urls": []
+    },
+    "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+    "in_reply_to_status_id": 1558429311450898432,
+    "in_reply_to_status_id_str": "1558429311450898432",
+    "in_reply_to_user_id": 1375783074374381582,
+    "in_reply_to_user_id_str": "1375783074374381582",
+    "in_reply_to_screen_name": "SystemSunday",
+    "user": {
+      "id": 1515457250026213378,
+      "id_str": "1515457250026213378",
+      "name": "Nemo",
+      "screen_name": "focus_with_nemo",
+      "location": "Global",
+      "description": "Nemo is your little helper and companion no matter if you need to focus, tune out other noises or if you want to have a moment of calm and relaxation.",
+      "url": "https://t.co/rVcmkG59cJ",
+      "entities": {
+        "url": {
+          "urls": [
+            {
+              "url": "https://t.co/rVcmkG59cJ",
+              "expanded_url": "https://nemo-landing-page.netlify.app/",
+              "display_url": "nemo-landing-page.netlify.app",
+              "indices": [0, 23]
+            }
+          ]
+        },
+        "description": { "urls": [] }
+      },
+      "protected": false,
+      "followers_count": 14,
+      "friends_count": 4,
+      "listed_count": 0,
+      "created_at": "Sat Apr 16 22:29:32 +0000 2022",
+      "favourites_count": 10,
+      "utc_offset": null,
+      "time_zone": null,
+      "geo_enabled": false,
+      "verified": false,
+      "statuses_count": 50,
+      "lang": null,
+      "contributors_enabled": false,
+      "is_translator": false,
+      "is_translation_enabled": false,
+      "profile_background_color": "F5F8FA",
+      "profile_background_image_url": null,
+      "profile_background_image_url_https": null,
+      "profile_background_tile": false,
+      "profile_image_url": "http://pbs.twimg.com/profile_images/1515463004888137728/1yNTIlPg_normal.jpg",
+      "profile_image_url_https": "https://pbs.twimg.com/profile_images/1515463004888137728/1yNTIlPg_normal.jpg",
+      "profile_banner_url": "https://pbs.twimg.com/profile_banners/1515457250026213378/1650149170",
+      "profile_link_color": "1DA1F2",
+      "profile_sidebar_border_color": "C0DEED",
+      "profile_sidebar_fill_color": "DDEEF6",
+      "profile_text_color": "333333",
+      "profile_use_background_image": true,
+      "has_extended_profile": true,
+      "default_profile": true,
+      "default_profile_image": false,
+      "following": true,
+      "follow_request_sent": false,
+      "notifications": false,
+      "translator_type": "none",
+      "withheld_in_countries": []
+    },
+    "geo": null,
+    "coordinates": null,
+    "place": null,
+    "contributors": null,
+    "is_quote_status": false,
+    "retweet_count": 0,
+    "favorite_count": 0,
+    "favorited": false,
+    "retweeted": false,
+    "lang": "en"
+  }
+]

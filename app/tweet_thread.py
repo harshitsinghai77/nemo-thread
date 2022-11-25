@@ -1,10 +1,13 @@
 import os
-import json
 
 import tweepy
 import aiohttp
 import asyncio
-from app.deta_tweet import save_thread_to_detabase, get_thread_key
+from app.deta_tweet import (
+    save_thread_to_detabase,
+    get_thread_key,
+    get_thread_from_detabase,
+)
 
 bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
 
@@ -61,6 +64,11 @@ async def make_request(
         return tweet
 
 
+def get_original_thread(tweet_id):
+    original_tweet = api.get_status(tweet_id, tweet_mode="extended")
+    return original_tweet._json
+
+
 async def get_all_tweets_in_thread(tweet_id):
 
     threads = []
@@ -96,18 +104,11 @@ async def get_all_tweets_in_thread(tweet_id):
     return threads
 
 
-def write_to_json(fname, object):
-    with open(fname, "w") as json_file:
-        json.dump(object, json_file)
-
-
 async def get_thread(tweet_id: int):
 
     all_tweets_in_thread = await get_all_tweets_in_thread(tweet_id)
     if not all_tweets_in_thread:
         return
-
-    write_to_json("tweets.json", all_tweets_in_thread)
 
     tweets_lookup = {
         tweet.get("in_reply_to_status_id"): tweet for tweet in all_tweets_in_thread
@@ -119,14 +120,12 @@ async def get_thread(tweet_id: int):
         thread.append(tweets_lookup[current_id])
         current_id = thread[-1]["id"]
 
-    # write_to_json("thread_emotional.json", thread)
-    # print_thread(thread)
     return thread
 
 
-def save_thread(thread):
+def save_thread(thread, thread_info):
     if not thread:
         return
 
     thread_key = get_thread_key(thread[0])
-    return save_thread_to_detabase(thread_key, thread)
+    return save_thread_to_detabase(thread_key, thread, thread_info)
