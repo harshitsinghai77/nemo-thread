@@ -13,32 +13,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-# tweet_id = "1591415649880141824"
-# start = time.perf_counter()
-# asyncio.run(get_thread(tweet_id=tweet_id))
-# end = time.perf_counter()
-# print("Total time", end - start)
-
-
-# with open("thread_ben.json", "r") as json_file:
-#     thread = json.load(json_file)
-
-# thread_info = extract_thread_info(thread[0])
-
-# key = get_thread_key(thread[0])
-
-# # deta_thread = get_thread_from_detabase(key)
-# # # print("deta_thread: ", deta_thread)
-
-# # key, new_user = get_new_user(thread[3])
-# # # print("new_user: ", new_user)
-
-# # # create_new_user(key, new_user)
-# update_user_thread_list("iAmbeR_20", thread_info)
-# save_thread_to_detabase(key=key, thread=thread)
-# exit()
-
-
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="client"), name="static")
 
