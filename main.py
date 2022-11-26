@@ -9,7 +9,7 @@ from app.deta_tweet import (
     update_user_thread_list,
     get_last_processed_id,
     add_last_processed_id,
-    get_related_threads,
+    get_random_thread,
 )
 from app.constants import PROD_URL
 
@@ -25,8 +25,8 @@ templates = Jinja2Templates(directory="client")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
-    return HTMLResponse("<h1> Welcome to Twitter Blog </h1>")
+async def root(request: Request):
+    return templates.TemplateResponse("landing-page/index.html", {"request": request})
 
 
 @app.post("/create_user")
@@ -104,43 +104,6 @@ async def reply_to_user(request: Request):
     )
 
 
-@app.get("/thread/{thread_id}", response_class=HTMLResponse)
-async def get_thread_by_thread_id(request: Request, thread_id: str):
-
-    if not thread_id:
-        return HTMLResponse("<h1> No Thread id found </h1>")
-
-    thread = get_thread_from_detabase(thread_id)
-    if not thread:
-        return HTMLResponse("<h1> Invalid Thread id </h1>")
-    thread = thread["data"]
-
-    hero_post, all_posts = thread[0], thread[1:]
-    related_thread = get_related_threads() or []
-
-    return templates.TemplateResponse(
-        "post.html",
-        {
-            "request": request,
-            "hero_post": hero_post,
-            "all_posts": all_posts,
-            "related_thread": related_thread,
-        },
-    )
-
-
-@app.get("/user/{user_id}", response_class=HTMLResponse)
-async def get_user_wall(request: Request, user_id: str):
-    if not user_id:
-        return HTMLResponse("<h1> No Thread id found </h1>")
-
-    user = get_user(user_id)
-    return templates.TemplateResponse(
-        "posts.html",
-        {"request": request, "user": user},
-    )
-
-
 @app.get("/create_thread/{thread_id}/{thread_key}", response_class=HTMLResponse)
 async def create_new_thread(thread_id: str, thread_key: str = None):
     if not thread_id:
@@ -167,3 +130,50 @@ async def create_new_thread(thread_id: str, thread_key: str = None):
 @app.get("/last_processed_id")
 async def last_processed_id():
     return get_last_processed_id()
+
+
+@app.get("/thread/{thread_id}", response_class=HTMLResponse)
+async def get_thread_by_thread_id(request: Request, thread_id: str):
+
+    if not thread_id:
+        return HTMLResponse("<h1> No Thread id found </h1>")
+
+    thread = get_thread_from_detabase(thread_id)
+    if not thread:
+        return HTMLResponse("<h1> Invalid Thread id </h1>")
+    thread = thread["data"]
+
+    hero_post, all_posts = thread[0], thread[1:]
+    related_thread = get_random_thread(n=4, shuffle=True) or []
+
+    return templates.TemplateResponse(
+        "post.html",
+        {
+            "request": request,
+            "hero_post": hero_post,
+            "all_posts": all_posts,
+            "related_thread": related_thread,
+        },
+    )
+
+
+@app.get("/feed", response_class=HTMLResponse)
+async def get_user_wall(request: Request):
+
+    all_threads = get_random_thread(shuffle=False) or []
+    return templates.TemplateResponse(
+        "feed.html",
+        {"request": request, "threads": all_threads},
+    )
+
+
+@app.get("/user/{user_id}", response_class=HTMLResponse)
+async def get_user_wall(request: Request, user_id: str):
+    if not user_id:
+        return HTMLResponse("<h1> No Thread id found </h1>")
+
+    user = get_user(user_id)
+    return templates.TemplateResponse(
+        "posts.html",
+        {"request": request, "user": user},
+    )

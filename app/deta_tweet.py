@@ -131,8 +131,11 @@ def update_user_thread_list(key, thread_info):
     DETA_BASE_TWITTER_USER.update(update, key)
 
 
-def get_related_threads():
+def get_random_thread(n=100, shuffle=False):
     thread = DETA_BASE_THREAD.fetch(query=None, limit=1000)
-    random_thread = [random.choice(thread.items) for _ in range(4)]
-    random_thread = [thread["thread_info"] for thread in random_thread]
-    return random_thread
+    thread_items = thread.items
+    if shuffle:
+        thread_items = [random.choice(thread_items) for _ in range(n)]
+
+    all_thread = list(map(lambda x: x["thread_info"], thread_items))
+    return all_thread
