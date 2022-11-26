@@ -1,4 +1,4 @@
-from app.tweet_thread import get_thread, save_thread
+from app.tweet_thread import get_thread, save_thread, reply_to_tweet
 from app.deta_tweet import (
     get_thread_from_detabase,
     extract_thread_info,
@@ -7,7 +7,11 @@ from app.deta_tweet import (
     create_new_user,
     get_user_twitter_handle,
     update_user_thread_list,
+    get_last_processed_id,
+    add_last_processed_id,
+    get_related_threads,
 )
+from app.constants import PROD_URL
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -18,8 +22,6 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="client"), name="static")
 
 templates = Jinja2Templates(directory="client")
-
-ROOT_URL = "https://qxq5l6.deta.dev/"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -59,14 +61,46 @@ async def add_thread_to_user(request: Request):
 
     twitter_handler = user_thread_details["user_twitter_handler"]
     thread_info = user_thread_details["thread_info"]
-    print("thread_info: ", thread_info)
 
     update_user_thread_list(key=twitter_handler, thread_info=thread_info)
-    user_wall = ROOT_URL + "user/" + twitter_handler
-    thread_link = ROOT_URL + "thread/" + thread_info["thread_url"]
+    user_wall = PROD_URL + "/user/" + twitter_handler
+    thread_link = PROD_URL + "/thread/" + thread_info["thread_url"]
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content={"user_wall": user_wall, "thread_link": thread_link},
+    )
+
+
+@app.post("/reply_to_user")
+async def reply_to_user(request: Request):
+    reply_user = await request.json()
+    if not reply_user:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "reply_user dict not found "},
+        )
+
+    screen_name, thread_info, mention_id = (
+        reply_user.get("screen_name"),
+        reply_user.get("thread_info"),
+        reply_user.get("mention_id"),
+    )
+    if not (screen_name and screen_name and mention_id):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": "keys (screen_name, thread_info, mention_id) not found in request "
+            },
+        )
+
+    reply_to_tweet(
+        screen_name=screen_name, thread_info=thread_info, mention_id=mention_id
+    )
+    add_last_processed_id(str(mention_id))
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"success": True},
     )
 
 
@@ -81,12 +115,17 @@ async def get_thread_by_thread_id(request: Request, thread_id: str):
         return HTMLResponse("<h1> Invalid Thread id </h1>")
     thread = thread["data"]
 
-    hero_post = thread[0]
-    all_posts = thread[1:]
+    hero_post, all_posts = thread[0], thread[1:]
+    related_thread = get_related_threads() or []
 
     return templates.TemplateResponse(
         "post.html",
-        {"request": request, "hero_post": hero_post, "all_posts": all_posts},
+        {
+            "request": request,
+            "hero_post": hero_post,
+            "all_posts": all_posts,
+            "related_thread": related_thread,
+        },
     )
 
 
@@ -123,3 +162,8 @@ async def create_new_thread(thread_id: str, thread_key: str = None):
         status_code=status.HTTP_201_CREATED,
         content={"thread_key": thread_key, "thread_info": thread_info},
     )
+
+
+@app.get("/last_processed_id")
+async def last_processed_id():
+    return get_last_processed_id()

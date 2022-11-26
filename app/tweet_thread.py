@@ -3,16 +3,17 @@ import os
 import tweepy
 import aiohttp
 import asyncio
-from app.deta_tweet import (
-    save_thread_to_detabase,
-    get_thread_key,
-    get_thread_from_detabase,
-)
+from app.deta_tweet import save_thread_to_detabase, get_thread_key
 
 bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
+access_token = os.getenv("TWITTER_ACCESS_TOKEN")
+access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
+consumer_key_secret = os.getenv("TWITTER_CONSUMER_KEY_SECRET")
 
 
-auth = tweepy.OAuth2BearerHandler(bearer_token)
+auth = tweepy.OAuthHandler(consumer_key, consumer_key_secret)
+auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 HEADERS = {"Authorization": f"Bearer {bearer_token}"}
@@ -76,12 +77,14 @@ async def get_all_tweets_in_thread(tweet_id):
     threads.append(original_tweet._json)
 
     all_tweets = get_all_tweets(original_tweet)
-    print("all_tweets: ", len(all_tweets))
+
+    if all_tweets[-1] > original_tweet.id:
+        print("Not able to retrieve so older tweets")
+        return threads
+
     end_index = all_tweets.index(original_tweet.id)
     start_index = max(end_index - THREAD_LIMIT, 0)
-
     fetch_tweet_lst = all_tweets[start_index:end_index]
-    print("fetch_tweet_lst: ", len(fetch_tweet_lst))
 
     TCPConnector = aiohttp.TCPConnector(limit=50)
     async with aiohttp.ClientSession(
@@ -98,7 +101,6 @@ async def get_all_tweets_in_thread(tweet_id):
             )
 
         all_tweets = await asyncio.gather(*tasks)
-        print("all_tweets: ", len(all_tweets))
         threads.extend(all_tweets)
 
     return threads
@@ -129,3 +131,14 @@ def save_thread(thread, thread_info):
 
     thread_key = get_thread_key(thread[0])
     return save_thread_to_detabase(thread_key, thread, thread_info)
+
+
+def get_reply_text(screen_name, thread_info):
+    return f"""
+        Hey @{screen_name}, Thanks for using Nemo. \n\nHere's your thread: {thread_info['thread_link']} \n\nYou can check all your saved threads here: {thread_info['user_wall']}
+    """
+
+
+def reply_to_tweet(screen_name, thread_info, mention_id):
+    reply_text = get_reply_text(screen_name, thread_info)
+    api.update_status(status=reply_text, in_reply_to_status_id=mention_id)

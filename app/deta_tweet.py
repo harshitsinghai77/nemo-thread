@@ -1,4 +1,5 @@
 import os
+import random
 from datetime import datetime
 
 from deta import Deta
@@ -15,6 +16,8 @@ DETA_BASE_LAST_MENTION = getdetabase("nemo_twitter_last_processed_mention")
 DETA_BASE_THREAD = getdetabase("nemo_twitter_thread")
 DETA_BASE_TWITTER_USER = getdetabase("nemo_twitter_user")
 
+REALLY_REALLY_BIG_NUMBER = 8.64e15
+
 
 def get_thread_key(thread):
     if not thread:
@@ -22,6 +25,25 @@ def get_thread_key(thread):
     screen_name = thread["user"]["screen_name"].replace(" ", "_").lower()
     key = screen_name + "_" + thread["id_str"]
     return key
+
+
+def get_last_mentioned_key():
+    """For context why keys are generated like this: https://github.com/orgs/deta/discussions/344#discussioncomment-3263320"""
+    return str(REALLY_REALLY_BIG_NUMBER - datetime.now().timestamp())
+
+
+def add_last_processed_id(processed_id):
+    last_mentioned_key = get_last_mentioned_key()
+    DETA_BASE_LAST_MENTION.put(
+        data={"processed_id": processed_id, "timestamp": str(datetime.now())},
+        key=last_mentioned_key,
+    )
+
+
+def get_last_processed_id():
+    res = DETA_BASE_LAST_MENTION.fetch(query={}, limit=1)
+    all_items = res.items[-1] if res.items else None
+    return all_items
 
 
 def get_user_twitter_handle(user_info):
@@ -107,3 +129,10 @@ def get_user(key):
 def update_user_thread_list(key, thread_info):
     update = {"threads": DETA_BASE_TWITTER_USER.util.append(thread_info)}
     DETA_BASE_TWITTER_USER.update(update, key)
+
+
+def get_related_threads():
+    thread = DETA_BASE_THREAD.fetch(query=None, limit=1000)
+    random_thread = [random.choice(thread.items) for _ in range(4)]
+    random_thread = [thread["thread_info"] for thread in random_thread]
+    return random_thread
