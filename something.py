@@ -1,4 +1,4 @@
 import asyncio
-from app.tweet_reply import respondToTweet
+from cron.main import respondToTweet
 
 asyncio.run(respondToTweet())

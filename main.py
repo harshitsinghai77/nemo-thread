@@ -1,4 +1,5 @@
-from app.tweet_thread import get_thread, save_thread, reply_to_tweet
+from app.tweet_thread import get_thread, save_thread
+from app.tweet_reply import process_twitter_mention, reply_to_tweet
 from app.deta_tweet import (
     get_thread_from_detabase,
     extract_thread_info,
@@ -100,6 +101,22 @@ async def reply_to_user(request: Request):
 
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
+        content={"success": True},
+    )
+
+
+@app.post("/process_mention")
+async def process_mention(request: Request):
+    mention = await request.json()
+    if not mention:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "mention not found "},
+        )
+
+    await process_twitter_mention(mention)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
         content={"success": True},
     )
 
