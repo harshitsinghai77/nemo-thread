@@ -184,13 +184,55 @@ async def get_user_wall(request: Request):
     )
 
 
+@app.post("/check_nemo_twitter_handler")
+async def check_user_exists(request: Request):
+    twitter_handle = await request.json()
+    print("twitter_handle: ", twitter_handle)
+    if not twitter_handle:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "twitter_handle not found"},
+        )
+
+    twitter_handle = twitter_handle.get("twitter_handler")
+    if not twitter_handle:
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"success": False, "message": "Invalid entity"},
+        )
+
+    user = get_user(twitter_handle)
+    success = True if user else False
+    message = (
+        "Account exists"
+        if success
+        else "Twitter Handler not registered with our account."
+    )
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"success": success, "message": message},
+    )
+
+
 @app.get("/user/{user_id}", response_class=HTMLResponse)
 async def get_user_wall(request: Request, user_id: str):
     if not user_id:
-        return HTMLResponse("<h1> No Thread id found </h1>")
+        return HTMLResponse("<h1> No user Found </h1>")
 
     user = get_user(user_id)
+    if not user:
+        return HTMLResponse(
+            "<h1> Twitter Handler not registered. <br /> You currently have no threads associated with your account. <br /> You will be automatically registered when you tag @focus_with_nemo in any twitter thread. <br /> <h2>Thanks for using Nemo 😊</h2< </h1>"
+        )
     return templates.TemplateResponse(
         "posts.html",
         {"request": request, "user": user},
+    )
+
+
+@app.get("/home", response_class=HTMLResponse)
+async def user_home(request: Request):
+    return templates.TemplateResponse(
+        "components/user-input.html",
+        {"request": request},
     )

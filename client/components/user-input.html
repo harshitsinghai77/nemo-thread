@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="{{ url_for('static', path='/dist/output.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    {% include 'components/header.html' %}
+    <main class="pt-8 pb-16 lg:pt-16 lg:pb-24 bg-white dark:bg-gray-900">
+      <div class="flex justify-center px-4 mx-auto max-w-screen-xl">
+        <section class="bg-white dark:bg-gray-900">
+          <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
+            <div class="mx-auto max-w-screen-md sm:text-center">
+              <h2
+                class="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl dark:text-white"
+              >
+                Tell us your Twitter Handle
+              </h2>
+              <p
+                class="mx-auto mb-8 max-w-2xl font-light text-gray-500 md:mb-12 sm:text-xl dark:text-gray-400"
+              >
+                We don't have a signup. So we need you to tell us your Twitter
+                Handler registered with us. This is a one time ask. You won't
+                have to tell us everytime. If you haven't registered with us
+                yet,
+                <a href="/user/joedoeuserdoesnotexist" target="_blank"
+                  >click here.</a
+                >
+              </p>
+
+              <form id="twitter_user_form">
+                <div
+                  class="items-center mx-auto mb-3 space-y-4 max-w-screen-sm sm:flex sm:space-y-0"
+                >
+                  <div class="relative w-full">
+                    <label
+                      for="text"
+                      class="hidden mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                      >Twitter Handler</label
+                    >
+                    <div
+                      class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
+                    >
+                      <svg
+                        class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                        class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      class="block p-3 pl-10 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 sm:rounded-none sm:rounded-l-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                      placeholder="Enter your twitter handle without the @"
+                      type="text"
+                      name="twitter_handler"
+                      id="twitter_handler"
+                      required=""
+                    />
+                  </div>
+                  <div>
+                    <button
+                      type="submit"
+                      class="py-3 px-5 w-full text-sm font-medium text-center text-white rounded-lg border cursor-pointer bg-primary-700 border-primary-600 sm:rounded-none sm:rounded-r-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                    >
+                      Home
+                    </button>
+                  </div>
+                </div>
+
+                <p
+                  class="font-medium text-red-600 hover:underline"
+                  style="color: rgb(239 68 68)"
+                  id="invalid_twitter_handler"
+                ></p>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    {% include 'components/footer.html' %}
+  </body>
+
+  <script>
+    async function handleForm(form) {
+      let formData = new FormData(form);
+      let objJson = Object.fromEntries(formData);
+      const twitterUserHandler = objJson["twitter_handler"];
+
+      const rawResponse = await fetch("/check_nemo_twitter_handler", {
+        method: "POST",
+        body: JSON.stringify(objJson),
+      });
+      const content = await rawResponse.json();
+
+      // twitter_handle is valid
+      if (content["success"]) {
+        // set to localStorage for future
+        localStorage.setItem("user_twitter_handler", twitterUserHandler);
+        // clear error message if any
+        document.getElementById("invalid_twitter_handler").innerHTML = "";
+        // redirect to user home page
+        redirectToUserPage(twitterUserHandler);
+      } else {
+        // Invalid twitter handler.
+        document.getElementById("invalid_twitter_handler").innerHTML =
+          " Invalid twitter handler";
+        document.getElementById("twitter_user_form").reset();
+      }
+    }
+
+    function check_twitter_handler_exists_in_local_storage() {
+      // if the twitter_handler already exists in the local storage,
+      // redirect it to user page.
+      const existingHandler = localStorage.getItem("user_twitter_handler");
+      if (existingHandler && typeof existingHandler === "string") {
+        redirectToUserPage(existingHandler);
+      }
+    }
+
+    function redirectToUserPage(twitterHandler) {
+      window.location.replace(`/user/${twitterHandler}`);
+    }
+
+    document
+      .getElementById("twitter_user_form")
+      .addEventListener("submit", function (e) {
+        e.preventDefault();
+        handleForm(e.target);
+      });
+
+    window.onload = function () {
+      check_twitter_handler_exists_in_local_storage();
+    };
+  </script>
+</html>

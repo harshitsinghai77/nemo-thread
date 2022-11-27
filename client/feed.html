@@ -1,9 +1,3 @@
-<!-- 
-Install the "flowbite-typography" NPM package to apply styles and format the article content: 
-
-URL: https://flowbite.com/docs/components/typography/ 
--->
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -16,6 +10,7 @@ URL: https://flowbite.com/docs/components/typography/
   </head>
 
   <body>
+    {% include 'components/header.html' %}
     <main class="pt-8 pb-16 lg:pt-16 lg:pb-24 bg-white dark:bg-gray-900">
       <div class="flex justify-between px-4 mx-auto max-w-screen-xl">
         <article class="px-5">
@@ -282,7 +277,6 @@ URL: https://flowbite.com/docs/components/typography/
       </div>
     </section>
 
-    {% extends 'footer.html' %}
-
+    {% include 'components/footer.html' %}
   </body>
 </html>
