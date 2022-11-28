@@ -96,7 +96,7 @@
             {% endif %}
             
             <h4>{{ heading }}</h4>
-            <p>{{ paragraph }}</p>
+            <p style="white-space: pre-wrap;">{{ paragraph }}</p>
 
             {% for pictures in tweet.get('extended_entities')['media'] %} 
               <figure>
