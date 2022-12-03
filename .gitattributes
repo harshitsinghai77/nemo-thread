@@ -1,3 +1,3 @@
-client/* linguist-vendored
-client/landing-page/** linguist-vendored
+client/** linguist-vendored
+client/landing-page/* linguist-vendored
 client/landing-page/src/scss/** linguist-vendored
