@@ -1,3 +1,10 @@
+import asyncio
+from deta import App
+from fastapi import FastAPI, Request, status
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
 from app.tweet_thread import get_thread, save_thread
 from app.tweet_reply import process_twitter_mention, reply_to_tweet
 from app.deta_tweet import (
@@ -13,13 +20,9 @@ from app.deta_tweet import (
     get_random_thread,
 )
 from app.constants import PROD_URL
+from cron.cron_job import fetch_tweet_mentions
 
-from fastapi import FastAPI, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-
-app = FastAPI()
+app = App(FastAPI())
 app.mount("/static", StaticFiles(directory="client"), name="static")
 
 templates = Jinja2Templates(directory="client")
@@ -236,3 +239,12 @@ async def user_home(request: Request):
         "components/user-input.html",
         {"request": request},
     )
+
+
+# cron job
+@app.lib.cron()
+def cron_job(event):
+    print("Starting cron job")
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(fetch_tweet_mentions())
+    print("Ending cron job")

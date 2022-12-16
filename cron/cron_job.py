@@ -26,14 +26,13 @@ async def post_request(session, url, data):
         return tweet
 
 
-async def respondToTweet():
+async def fetch_tweet_mentions():
 
     req_last_mention_id = requests.get(ROOT_URL + "/last_processed_id")
     last_mention_id = req_last_mention_id.json()
     if last_mention_id:
         last_mention_id = last_mention_id["processed_id"]
 
-    last_mention_id = "1596558330742575104"
     all_mentions = []
     while True:
         mention = api.mentions_timeline(since_id=last_mention_id, tweet_mode="extended")
@@ -45,12 +44,12 @@ async def respondToTweet():
 
         last_mention_id = all_mentions[-1]["id"]
 
-    # all_list = [mention._json for mention in reversed(mention)]
-    # with open("mention_1.json", "w") as json_file:
+    # with open("mention.json", "w") as json_file:
     #     json.dump(all_mentions, json_file)
 
     # with open("mention.json", "r") as json_file:
     #     mention = json.load(json_file)
+
     async with aiohttp.ClientSession() as session:
         mention_task = []
         for mention in all_mentions:
