@@ -76,8 +76,7 @@
                 Related Threads
               </h2>
               <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-                
-                {% for post in user['threads'] %}
+              {% for post in user['threads'] %}
                 <article class="max-w-xs">
                   <a href="/thread/{{ post['thread_url'] }}">
                     <img
@@ -88,7 +87,7 @@
                     <h2
                       class="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white"
                     >
-                      <p>{{ post['title'] }}</a>
+                      <p>{{ post['title']|truncate(100, True, end='...') }}</a>
                     </h2>
                     <p class="mb-4 font-light text-gray-500 dark:text-gray-400">
                       {{ post['author'] }} <br />

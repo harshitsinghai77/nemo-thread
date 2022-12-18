@@ -82,7 +82,7 @@
                     <h2
                       class="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white"
                     >
-                      <p>{{ post['title'] }}</a>
+                      <p>{{ post['title']|truncate(100, True, end='...') }}</a>
                     </h2>
                     <p class="mb-4 font-light text-gray-500 dark:text-gray-400">
                       {{ post['author'] }} <br />
