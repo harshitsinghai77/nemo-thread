@@ -18,6 +18,8 @@ from app.deta_tweet import (
     get_last_processed_id,
     add_last_processed_id,
     get_random_thread,
+    get_messi_nft,
+    update_messi_nft,
 )
 from app.constants import PROD_URL
 from cron.cron_job import fetch_tweet_mentions
@@ -190,7 +192,6 @@ async def get_user_wall(request: Request):
 @app.post("/check_nemo_twitter_handler")
 async def check_user_exists(request: Request):
     twitter_handle = await request.json()
-    print("twitter_handle: ", twitter_handle)
     if not twitter_handle:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -238,6 +239,21 @@ async def user_home(request: Request):
     return templates.TemplateResponse(
         "components/user-input.html",
         {"request": request},
+    )
+
+
+# Routes for MessiNFT Flow Blockchain
+@app.get("/messiNFT")
+async def get_messi_nft_ipfs_url():
+    ipfs_hash = get_messi_nft()
+
+    # update messi nft before returning
+    if ipfs_hash:
+        update_messi_nft(key=ipfs_hash[0]["key"])
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"ipfs_hash": ipfs_hash},
     )
 
 
