@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.tweet_thread import get_thread, save_thread
 from app.tweet_reply import process_twitter_mention, reply_to_tweet
@@ -26,6 +27,14 @@ from cron.cron_job import fetch_tweet_mentions
 
 app = App(FastAPI())
 app.mount("/static", StaticFiles(directory="client"), name="static")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 templates = Jinja2Templates(directory="client")
 

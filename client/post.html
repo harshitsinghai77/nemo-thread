@@ -95,13 +95,13 @@
               {% set heading, paragraph = '', tweet['full_text'] %} 
             {% endif %}
             
-            <h4>{{ heading }}</h4>
-            <p style="white-space: pre-wrap;">{{ paragraph }}</p>
+            <h4>{{ heading | replace('&amp;', '&') }}</h4>
+            <p style="white-space: pre-wrap;">{{ paragraph | replace('&amp;', '&') }}</p>
 
             {% for pictures in tweet.get('extended_entities')['media'] %} 
               <figure>
                 <img
-                  src="{{ pictures['media_url_https'] }}"
+                  src="{{ pictures['media_url_https'] }}"zzzz
                   alt=""
                 />
                 <!-- <figcaption>Digital art by Anonymous</figcaption> -->
