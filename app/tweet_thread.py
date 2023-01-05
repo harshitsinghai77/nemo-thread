@@ -116,6 +116,7 @@ async def get_thread(tweet_id: int):
         thread.append(tweets_lookup[current_id])
         current_id = thread[-1]["id"]
 
+    thread = get_embedded_tweets(thread)
     return thread
 
 
@@ -125,3 +126,14 @@ def save_thread(thread, thread_info):
 
     thread_key = get_thread_key(thread[0])
     return save_thread_to_detabase(thread_key, thread, thread_info)
+
+
+def get_embedded_tweets(thread):
+    for tweet in thread:
+        all_embeds = []
+        for url in tweet.get("entities").get("urls"):
+            if "twitter.com" in url.get("expanded_url"):
+                resp = api.get_oembed(url.get("expanded_url"))
+                all_embeds.append(resp.get("html"))
+        tweet["embed_htmls"] = all_embeds
+    return thread

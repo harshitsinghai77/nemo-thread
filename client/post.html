@@ -97,6 +97,10 @@
             
             <h4>{{ heading | replace('&amp;', '&') }}</h4>
             <p style="white-space: pre-wrap;">{{ paragraph | replace('&amp;', '&') }}</p>
+            
+            {% for embed_html in tweet.get('embed_htmls') %} 
+              {{ embed_html|safe }}
+            {% endfor %}
 
             {% for pictures in tweet.get('extended_entities')['media'] %} 
               <figure>
@@ -106,9 +110,7 @@
                 />
                 <!-- <figcaption>Digital art by Anonymous</figcaption> -->
               </figure>
-
             {% endfor %}
-
           {% endfor %}
 
           <!-- <p class="lead">
