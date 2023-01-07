@@ -1,11 +1,12 @@
 import asyncio
 from deta import App
 from fastapi import FastAPI, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.sqlite.dbContextManager import SqliteContextManager
 from app.tweet_thread import get_thread, save_thread
 from app.tweet_reply import process_twitter_mention, reply_to_tweet
 from app.deta_tweet import (
@@ -20,6 +21,8 @@ from app.deta_tweet import (
     add_last_processed_id,
     get_random_thread,
     get_messi_nft,
+    fetch_document,
+    list_documents,
     update_messi_nft,
 )
 from app.constants import PROD_URL
@@ -37,6 +40,31 @@ app.add_middleware(
 )
 
 templates = Jinja2Templates(directory="client")
+
+# on FastAPI startup using sqlite3, create table html_cache
+@app.on_event("startup")
+async def startup():
+    with SqliteContextManager() as cursor:
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS html_cache (thread_id TEXT PRIMARY KEY, html TEXT)"
+        )
+
+
+def insert_html_to_sqlite_cache_db(thread_id: str, html_content: str):
+    with SqliteContextManager() as cursor:
+        cursor.execute(
+            "INSERT INTO html_cache (thread_id, html) VALUES (?, ?)",
+            (thread_id, html_content),
+        )
+
+
+def get_html_from_sqlite_cache_db(thread_id: str):
+    with SqliteContextManager() as cursor:
+        cursor.execute("SELECT html FROM html_cache WHERE thread_id = ?", (thread_id,))
+        html = cursor.fetchone()
+        if html:
+            html_bytes = html[0]
+            return html_bytes.decode("utf-8")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -172,12 +200,16 @@ async def get_thread_by_thread_id(request: Request, thread_id: str):
     thread = get_thread_from_detabase(thread_id)
     if not thread:
         return HTMLResponse("<h1> Invalid Thread id </h1>")
-    thread = thread["data"]
 
+    html_str = get_html_from_sqlite_cache_db(thread_id)
+    if html_str:
+        return HTMLResponse(html_str)
+
+    thread = thread["data"]
     hero_post, all_posts = thread[0], thread[1:]
     related_thread = get_random_thread(n=4, shuffle=True) or []
 
-    return templates.TemplateResponse(
+    html = templates.TemplateResponse(
         "post.html",
         {
             "request": request,
@@ -186,6 +218,8 @@ async def get_thread_by_thread_id(request: Request, thread_id: str):
             "related_thread": related_thread,
         },
     )
+    insert_html_to_sqlite_cache_db, thread_id, html.body
+    return html
 
 
 @app.get("/feed", response_class=HTMLResponse)
@@ -255,7 +289,6 @@ async def user_home(request: Request):
 @app.get("/messiNFT")
 async def get_messi_nft_ipfs_url():
     ipfs_hash = get_messi_nft()
-
     # update messi nft before returning
     if ipfs_hash:
         update_messi_nft(key=ipfs_hash[0]["key"])
@@ -264,6 +297,26 @@ async def get_messi_nft_ipfs_url():
         status_code=status.HTTP_200_OK,
         content={"ipfs_hash": ipfs_hash},
     )
+
+
+@app.get("/document/cdn/{document_id}")
+async def cdn(document_id: str):
+    """Serve documents from DetaDrive CDN"""
+    document = fetch_document(document_id)
+    if not document:
+        return JSONResponse({"message": "Document not found"}, status_code=404)
+    headers = {"Cache-Control": "public, max-age=86400"}
+    return Response(
+        content=document.read(),
+        media_type="application/octet-stream",
+        headers=headers,
+    )
+
+
+@app.get("/all-documents")
+async def get_list_of_documents():
+    """List all documents available in the drive"""
+    return list_documents()
 
 
 # cron job

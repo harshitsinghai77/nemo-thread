@@ -40,3 +40,6 @@ archive.zip
 
 # node_modules
 client/node_modules/
+
+# sqlite3 database
+html_cache.db

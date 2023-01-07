@@ -98,7 +98,7 @@
             <h4>{{ heading | replace('&amp;', '&') }}</h4>
             <p style="white-space: pre-wrap;">{{ paragraph | replace('&amp;', '&') }}</p>
             
-            {% for embed_html in tweet.get('embed_htmls') %} 
+            {% for embed_html in tweet.get('embed_htmls', []) %} 
               {{ embed_html|safe }}
             {% endfor %}
 
