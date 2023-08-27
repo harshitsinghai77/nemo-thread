@@ -43,3 +43,4 @@ client/node_modules/
 
 # sqlite3 database
 html_cache.db
+.space

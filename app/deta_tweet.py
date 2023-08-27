@@ -15,7 +15,6 @@ def getdetabase(db_name):
 DETA_BASE_LAST_MENTION = getdetabase("nemo_twitter_last_processed_mention")
 DETA_BASE_THREAD = getdetabase("nemo_twitter_thread")
 DETA_BASE_TWITTER_USER = getdetabase("nemo_twitter_user")
-DETA_BASE_MESSI_NFT = getdetabase("messi_nft_ipfs")
 DETA_DRIVE = deta.Drive("family_documents")
 
 REALLY_REALLY_BIG_NUMBER = 8.64e15
@@ -151,20 +150,3 @@ def fetch_document(document_name):
 def list_documents():
     """List all the documents in the Deta Drive."""
     return DETA_DRIVE.list(limit=1000)
-
-
-def add_messi_nft(key, ipfsURL):
-    # put the key in the messi nft db
-    DETA_BASE_MESSI_NFT.put({"ipfsURL": ipfsURL, "active": True}, key=key)
-
-
-def get_messi_nft():
-    # get all the messi nft
-    res = DETA_BASE_MESSI_NFT.fetch(query={"active": True}, limit=1)
-    all_items = res.items
-    return all_items
-
-
-def update_messi_nft(key):
-    # remove the messi nft
-    DETA_BASE_MESSI_NFT.update({"active": False}, key=key)

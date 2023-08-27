@@ -1,5 +1,3 @@
-import asyncio
-from deta import App
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -20,15 +18,14 @@ from app.deta_tweet import (
     get_last_processed_id,
     add_last_processed_id,
     get_random_thread,
-    get_messi_nft,
     fetch_document,
     list_documents,
-    update_messi_nft,
 )
 from app.constants import PROD_URL
+from app.event_validation import Action
 from cron.cron_job import fetch_tweet_mentions
 
-app = App(FastAPI())
+app = FastAPI()
 app.mount("/static", StaticFiles(directory="client"), name="static")
 
 app.add_middleware(
@@ -285,20 +282,6 @@ async def user_home(request: Request):
     )
 
 
-# Routes for MessiNFT Flow Blockchain
-@app.get("/messiNFT")
-async def get_messi_nft_ipfs_url():
-    ipfs_hash = get_messi_nft()
-    # update messi nft before returning
-    if ipfs_hash:
-        update_messi_nft(key=ipfs_hash[0]["key"])
-
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"ipfs_hash": ipfs_hash},
-    )
-
-
 @app.get("/document/cdn/{document_id}")
 async def cdn(document_id: str):
     """Serve documents from DetaDrive CDN"""
@@ -319,10 +302,9 @@ async def get_list_of_documents():
     return list_documents()
 
 
-# cron job
-@app.lib.cron()
-def cron_job(event):
-    print("Starting cron job")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(fetch_tweet_mentions())
-    print("Ending cron job")
+@app.post("/__space/v0/actions")
+async def cron_job(action: Action):
+    if action.event.id == "fetch_tweet_mentions":
+        print("Starting cron job")
+        await fetch_tweet_mentions()
+        print("Ending cron job")
