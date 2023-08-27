@@ -1,7 +1,7 @@
 # Introducing Nemo Threads
 
-<span style="color:red">The app has been temporarily suspended due to recent modifications in the Twitter API. The app's core functionalities were closely tied to specific features within the Twitter API. Unfortunately, these features have been transitioned from the free tier to the Basic tier, incurring a cost of $100 USD per month. Regrettably, this cost is not sustainable for us, compelling us to make the difficult decision to shut down the app.
-</span>
+<font color="red">The app has been temporarily suspended due to recent modifications in the Twitter API. The app's core functionalities were closely tied to specific features within the Twitter API. Unfortunately, these features have been transitioned from the free tier to the Basic tier, incurring a cost of $100 USD per month. Regrettably, this cost is not sustainable for us, compelling us to make the difficult decision to shut down the app.
+</font>
 
 Are you tired of losing track of those amazing Twitter threads you come across? Do you wish there was an easier way to save and organize them? Introducing Nemo Threads – the solution to all your Twitter thread woes.
 
