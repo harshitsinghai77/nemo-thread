@@ -7,10 +7,10 @@ import aiohttp
 
 from app.constants import ROOT_URL
 
-access_token = os.getenv("TWITTER_ACCESS_TOKEN")
-access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
-consumer_key = os.getenv("TWITTER_CONSUMER_KEY")
-consumer_key_secret = os.getenv("TWITTER_CONSUMER_KEY_SECRET")
+access_token = os.getenv("TWITTER_ACCESS_TOKEN", "MY_TWITTER_ACCESS_TOKEN")
+access_token_secret = os.getenv("TWITTER_ACCESS_TOKEN_SECRET", "MY_TWITTER_ACCESS_TOKEN_SECRET")
+consumer_key = os.getenv("TWITTER_CONSUMER_KEY", "MY_TWITTER_CONSUMER_KEY")
+consumer_key_secret = os.getenv("TWITTER_CONSUMER_KEY_SECRET", "MY_TWITTER_CONSUMER_KEY_SECRET")
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_key_secret)
 auth.set_access_token(access_token, access_token_secret)
