@@ -11,4 +11,4 @@ But that's not all – Nemo Threads is completely free and doesn't even require 
 
 So why wait? Start saving your favorite Twitter threads easily and for free with Nemo Threads. Try it out today!
 
-[https://nemo-thread.deta.dev/](https://nemo-thread.deta.dev/)
+[https://nemothread-1-e7133226.deta.app/](https://nemothread-1-e7133226.deta.app/)
