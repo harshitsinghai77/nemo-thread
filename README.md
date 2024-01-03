@@ -9,6 +9,4 @@ With Nemo Threads, you can create your own wall of favorite threads, all in one 
 
 But that's not all – Nemo Threads is completely free and doesn't even require a sign-up process. And, as a bonus, it's brought to you by the creators of Nemo – a helpful tool for increasing productivity, relaxation, and focus.
 
-So why wait? Start saving your favorite Twitter threads easily and for free with Nemo Threads. Try it out today!
-
 [https://nemothread-1-e7133226.deta.app/](https://nemothread-1-e7133226.deta.app/)
