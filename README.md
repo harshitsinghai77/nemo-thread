@@ -10,3 +10,4 @@ With Nemo Threads, you can create your own wall of favorite threads, all in one 
 But that's not all – Nemo Threads is completely free and doesn't even require a sign-up process. And, as a bonus, it's brought to you by the creators of Nemo – a helpful tool for increasing productivity, relaxation, and focus.
 
 [https://nemothread-1-e7133226.deta.app/](https://nemothread-1-e7133226.deta.app/)
+[https://fictionally-irrelevant.vercel.app/posts/introducing-nemo-thread](https://fictionally-irrelevant.vercel.app/posts/introducing-nemo-thread)
