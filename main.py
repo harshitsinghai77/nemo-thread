@@ -222,7 +222,8 @@ async def get_thread_by_thread_id(request: Request, thread_id: str):
 @app.get("/feed", response_class=HTMLResponse)
 async def get_user_wall(request: Request):
 
-    all_threads = get_random_thread(shuffle=False) or []
+    # all_threads = get_random_thread(shuffle=False) or []
+    all_threads = []
     return templates.TemplateResponse(
         "feed.html",
         {"request": request, "threads": all_threads},
